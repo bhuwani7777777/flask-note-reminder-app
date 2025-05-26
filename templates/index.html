@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Welcome to Note & Reminder App</h1>
+
+<h3>Today's Tasks</h3>
+<ul class="list-group mb-4">
+    {% for task in tasks %}
+    <li class="list-group-item">{{ task.Date }} — {{ task.Task }}</li>
+    {% else %}
+    <li class="list-group-item">No tasks available.</li>
+    {% endfor %}
+</ul>
+
+<h3>Recent Transactions</h3>
+<ul class="list-group">
+    {% for tx in transactions %}
+    <li class="list-group-item">{{ tx.Date }} — {{ tx.Description }} — ${{ tx.Amount }}</li>
+    {% else %}
+    <li class="list-group-item">No transactions recorded yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

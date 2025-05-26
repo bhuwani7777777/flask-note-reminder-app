@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Upcoming Important Tasks</h2>
+    <form method="post">
+        Date: <input type="date" name="date" required>
+        Task: <input type="text" name="task" required>
+        <button type="submit">Add Upcoming Task</button>
+    </form>
+    <ul>
+        {% for task in tasks %}
+            <li>{{ task['date'] }} - {{ task['task'] }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

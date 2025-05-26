@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Daily Tasks</h2>
+<form method="POST" action="{{ url_for('add_task') }}" class="mb-4">
+    <div class="mb-3">
+        <label for="date" class="form-label">Date:</label>
+        <input id="date" name="date" type="date" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label for="task" class="form-label">Task:</label>
+        <input id="task" name="task" type="text" class="form-control" placeholder="Task description" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Task</button>
+</form>
+
+<ul class="list-group">
+    {% for task in tasks %}
+    <li class="list-group-item">{{ task.Date }} — {{ task.Task }}</li>
+    {% else %}
+    <li class="list-group-item">No tasks added yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
