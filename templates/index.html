@@ -1,23 +1,46 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Welcome to Note & Reminder App</h1>
+<div class="container mt-4">
+    <h1>📝 My Tasks & Reminders</h1>
+    <form method="POST" action="/add" class="row g-3">
+        <div class="col-md-4">
+            <input name="title" class="form-control" placeholder="Task Title" required>
+        </div>
+        <div class="col-md-3">
+            <input type="date" name="date" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+            <input name="category" class="form-control" placeholder="Category">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Add Task</button>
+        </div>
+    </form>
 
-<h3>Today's Tasks</h3>
-<ul class="list-group mb-4">
-    {% for task in tasks %}
-    <li class="list-group-item">{{ task.Date }} — {{ task.Task }}</li>
-    {% else %}
-    <li class="list-group-item">No tasks available.</li>
-    {% endfor %}
-</ul>
+    <hr>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th><th>Date</th><th>Category</th><th>Status</th><th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+            <tr>
+                <td>{{ task.title }}</td>
+                <td>{{ task.date }}</td>
+                <td>{{ task.category }}</td>
+                <td>{% if task.completed == 'True' %}✅{% else %}❌{% endif %}</td>
+                <td>
+                    <a href="/edit/{{ task.id }}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="/delete/{{ task.id }}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
-<h3>Recent Transactions</h3>
-<ul class="list-group">
-    {% for tx in transactions %}
-    <li class="list-group-item">{{ tx.Date }} — {{ tx.Description }} — ${{ tx.Amount }}</li>
-    {% else %}
-    <li class="list-group-item">No transactions recorded yet.</li>
-    {% endfor %}
-</ul>
+    <a href="/export" class="btn btn-success">Download CSV Backup</a>
+</div>
 {% endblock %}

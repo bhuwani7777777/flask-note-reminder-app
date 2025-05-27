@@ -1,65 +1,46 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, send_file
+import tasks
 import csv
 import os
 
 app = Flask(__name__)
 
-TASKS_CSV = 'data/tasks.csv'
-TRANSACTIONS_CSV = 'data/transactions.csv'
-
-# Ensure data directory and CSV files exist
-os.makedirs('data', exist_ok=True)
-for file, headers in [(TASKS_CSV, ['Date', 'Task']), (TRANSACTIONS_CSV, ['Date', 'Description', 'Amount'])]:
-    if not os.path.exists(file):
-        with open(file, mode='w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(headers)
-
-def read_csv(file_path):
-    with open(file_path, newline='') as f:
-        reader = csv.DictReader(f)
-        return list(reader)
-
-def write_task(date, task):
-    with open(TASKS_CSV, mode='a', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([date, task])
-
-def write_transaction(date, description, amount):
-    with open(TRANSACTIONS_CSV, mode='a', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([date, description, amount])
-
 @app.route('/')
 def index():
-    tasks = read_csv(TASKS_CSV)
-    transactions = read_csv(TRANSACTIONS_CSV)
-    return render_template('index.html', tasks=tasks, transactions=transactions)
+    all_tasks = tasks.read_tasks()
+    return render_template('index.html', tasks=all_tasks)
 
-@app.route('/daily_tasks')
-def daily_tasks_view():
-    tasks = read_csv(TASKS_CSV)
-    return render_template('daily_tasks.html', tasks=tasks)
-
-@app.route('/add_task', methods=['POST'])
-def add_task():
+@app.route('/add', methods=['POST'])
+def add():
+    title = request.form['title']
     date = request.form['date']
-    task = request.form['task']
-    write_task(date, task)
-    return redirect(url_for('daily_tasks_view'))
+    category = request.form['category']
+    tasks.add_task(title, date, category)
+    return redirect('/')
 
-@app.route('/transactions')
-def transactions_view():
-    transactions = read_csv(TRANSACTIONS_CSV)
-    return render_template('transactions.html', transactions=transactions)
+@app.route('/delete/<task_id>')
+def delete(task_id):
+    tasks.delete_task(task_id)
+    return redirect('/')
 
-@app.route('/add_transaction', methods=['POST'])
-def add_transaction():
-    date = request.form['date']
-    description = request.form['description']
-    amount = request.form['amount']
-    write_transaction(date, description, amount)
-    return redirect(url_for('transactions_view'))
+@app.route('/edit/<task_id>', methods=['GET', 'POST'])
+def edit(task_id):
+    if request.method == 'POST':
+        title = request.form['title']
+        date = request.form['date']
+        category = request.form['category']
+        completed = 'completed' in request.form
+        tasks.update_task(task_id, title, date, category, str(completed))
+        return redirect('/')
+    else:
+        all_tasks = tasks.read_tasks()
+        task = next((t for t in all_tasks if t['id'] == task_id), None)
+        return render_template('edit_task.html', task=task)
+
+@app.route('/export')
+def export():
+    file_path = os.path.join('data', 'tasks.csv')
+    return send_file(file_path, as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
